@@ -1,0 +1,13 @@
+.idea/
+*.iml
+target/
+.mvn/wrapper/maven-wrapper.jar
+
+# OS junk
+*.log
+.DS_Store
+Thumbs.db
+
+# Local configs
+src/main/resources/application.properties
+src/test/resources/application.properties
