@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/Order")
+@RequestMapping("/order")
 @RequiredArgsConstructor
 public class OrderController {
 
