@@ -3,10 +3,15 @@ package com.example.crm.service.impl;
 import com.example.crm.entity.AppUser;
 import com.example.crm.entity.Table;
 import com.example.crm.entity.dtos.request.order.OrderRequestDTO;
+import com.example.crm.entity.dtos.request.orderitem.OrderItemRequestDTO;
 import com.example.crm.entity.dtos.response.order.OrderResponseDTO;
+import com.example.crm.entity.model.Items;
+import com.example.crm.entity.model.orderitemmodel.OrderItem;
 import com.example.crm.entity.model.ordermodel.Order;
+import com.example.crm.mappers.OrderItemMapper;
 import com.example.crm.mappers.OrderMapper;
 import com.example.crm.repository.AppUserRepository;
+import com.example.crm.repository.ItemRepository;
 import com.example.crm.repository.OrderItemRepository;
 import com.example.crm.repository.OrderRepository;
 import com.example.crm.repository.RestaurantTableRepository;
@@ -31,7 +36,9 @@ public class OrderServiceImpl implements OrderService {
     private final OrderItemRepository orderItemRepository;
     private final AppUserRepository appUserRepository;
     private final RestaurantTableRepository tableRepository;
+    private final ItemRepository itemRepository;
     private final OrderMapper orderMapper;
+    private final OrderItemMapper orderItemMapper;
 
     // ─── Create ───────────────────────────────────────────────────
 
@@ -54,10 +61,25 @@ public class OrderServiceImpl implements OrderService {
                         "Waiter not found with id: " + request.getWaiterId()));
 
         Order order = orderMapper.toEntity(table, customer, waiter);
+
+        // Build order items from request and attach before saving so cascade persists them
+        List<OrderItem> items = request.getOrderItems().stream()
+                .map(itemReq -> mapToOrderItem(order, itemReq))
+                .collect(Collectors.toList());
+
+        order.setOrderItems(items);
+
         Order savedOrder = orderRepository.save(order);
 
         log.info("Order created successfully with id: {}", savedOrder.getId());
         return orderMapper.toResponse(savedOrder);
+    }
+
+    private OrderItem mapToOrderItem(Order order, OrderItemRequestDTO itemRequest) {
+        Items item = itemRepository.findById(itemRequest.getItemId())
+                .orElseThrow(() -> new EntityNotFoundException(
+                        "Item not found with id: " + itemRequest.getItemId()));
+        return orderItemMapper.toEntity(order, item, itemRequest.getQuantity());
     }
 
     // ─── Read ─────────────────────────────────────────────────────

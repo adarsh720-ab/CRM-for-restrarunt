@@ -33,11 +33,6 @@ public class OrderItemController {
         return ResponseEntity.ok(orderItemService.getItemsByOrderId(orderId));
     }
 
-    @GetMapping("/get-item/{id}")
-    public ResponseEntity<OrderItemResponseDTO> getOrderItemById(
-            @PathVariable UUID id) {
-        return ResponseEntity.ok(orderItemService.getOrderItemById(id));
-    }
 
     @PutMapping("/update-item/{id}")
     public ResponseEntity<OrderItemResponseDTO> updateOrderItem(
